@@ -21,7 +21,9 @@ export default function Main(props) {
         setUserDescription(userData.about);
         setUserAvatar(userData.avatar);
         setCards(cardData);
-        
+      })
+      .catch((err) => {
+        console.log(err); // выведем ошибку в консоль
       })
   }, [])
 
