@@ -1,29 +1,44 @@
-function handleEditAvatarClick() {
-  document.querySelector('.popup_window_edit-avatar').classList.add('popup_opened'); 
-}
+import React from 'react';
+import Avatar from '../images/profile__image.jpg';
+import { api } from '../utils/Api';
+import Card from './Card';
 
-function handleEditProfileClick() {
-  document.querySelector('.popup_window_edit').classList.add('popup_opened');
-}
+export default function Main(props) {
 
-function handleAddPlaceClick() {
-  document.querySelector('.popup_window_add').classList.add('popup_opened');
-}
+  const [userName, setUserName] = React.useState('Жак-Ив Кусто');
+  const [userDescription, setUserDescription] = React.useState('Исследователь океана');
+  const [userAvatar, setUserAvatar] = React.useState(Avatar);
 
-export default function Main() {
+  const [cards, setCards] = React.useState([]);
+
+  React.useEffect(() => {
+    Promise.all([
+      api.getUserInformation(),
+      api.getCards()
+    ])
+      .then(([userData, cardData]) => {
+        setUserName(userData.name);
+        setUserDescription(userData.about);
+        setUserAvatar(userData.avatar);
+        setCards(cardData);
+        
+      })
+  }, [])
+
   return (
     <main className="content">
       <section className="profile">
-        <div onClick={handleEditAvatarClick} className="profile__avatar" />
+        <div onClick={props.onEditAvatar} className="profile__avatar" style={{ backgroundImage: `url(${userAvatar})` }} />
         <div className="profile__profile-info">
-          <h1 className="profile__title">Жак-Ив Кусто</h1>
-          <p className="profile__subtitle">Исследователь океана</p>
+          <h1 className="profile__title">{userName}</h1>
+          <p className="profile__subtitle">{userDescription}</p>
         </div>
-        <button onClick={handleEditProfileClick} type="button" aria-label="редактирование профиля." className="profile__edit-button" />
-        <button onClick={handleAddPlaceClick} type="button" aria-label="добавление карточки." className="profile__add-button" />
+        <button onClick={props.onEditProfile} type="button" aria-label="редактирование профиля." className="profile__edit-button" />
+        <button onClick={props.onAddPlace} type="button" aria-label="добавление карточки." className="profile__add-button" />
       </section>
       <section className="list-of-places">
         <ul className="elements">
+          {cards.map((item) => (<Card onCardClick={props.onCardClick} card={item} key={item._id} />))}
         </ul>
       </section>
     </main>);
