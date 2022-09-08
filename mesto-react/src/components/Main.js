@@ -1,31 +1,23 @@
 import React from 'react';
 import Avatar from '../images/profile__image.jpg';
-import { api } from '../utils/Api';
 import Card from './Card';
+import { CurrentUserContext } from '../contexts/CurrentUserContext';
+import { CardsContext } from '../contexts/CardsContext';
 
 export default function Main(props) {
+
+  const currentUser = React.useContext(CurrentUserContext);
+  const cards = React.useContext(CardsContext);
 
   const [userName, setUserName] = React.useState('Жак-Ив Кусто');
   const [userDescription, setUserDescription] = React.useState('Исследователь океана');
   const [userAvatar, setUserAvatar] = React.useState(Avatar);
 
-  const [cards, setCards] = React.useState([]);
-
-  React.useEffect(() => {
-    Promise.all([
-      api.getUserInformation(),
-      api.getCards()
-    ])
-      .then(([userData, cardData]) => {
-        setUserName(userData.name);
-        setUserDescription(userData.about);
-        setUserAvatar(userData.avatar);
-        setCards(cardData);
-      })
-      .catch((err) => {
-        console.log(err); // выведем ошибку в консоль
-      })
-  }, [])
+  React.useEffect(() => {    
+    setUserName(currentUser.name);
+    setUserDescription(currentUser.about);
+    setUserAvatar(currentUser.avatar);
+  })
 
   return (
     <main className="content">
