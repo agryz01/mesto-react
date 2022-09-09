@@ -2,22 +2,37 @@ import React from 'react';
 import Avatar from '../images/profile__image.jpg';
 import Card from './Card';
 import { CurrentUserContext } from '../contexts/CurrentUserContext';
-import { CardsContext } from '../contexts/CardsContext';
+import { api } from '../utils/Api';
 
 export default function Main(props) {
 
   const currentUser = React.useContext(CurrentUserContext);
-  const cards = React.useContext(CardsContext);
 
   const [userName, setUserName] = React.useState('Жак-Ив Кусто');
   const [userDescription, setUserDescription] = React.useState('Исследователь океана');
   const [userAvatar, setUserAvatar] = React.useState(Avatar);
 
-  React.useEffect(() => {    
+  function handleCardLike(card) {
+    const isFavourites = card.likes.some(item => item._id === currentUser._id);
+
+    api.toggleCardLikes(isFavourites, card._id).then((newCard) => {
+      props.setCards((state) => state.map((item) => item._id === card._id ? newCard : item));
+    })
+      .catch((err) => {
+        console.log(err); // выведем ошибку в консоль
+      })
+  }
+
+  function handleCardDelete(card) {
+    api.deletCard(card._id);
+    props.setCards((state) => state.filter((item) => item._id !== card._id));
+  }
+
+  React.useEffect(() => {
     setUserName(currentUser.name);
     setUserDescription(currentUser.about);
     setUserAvatar(currentUser.avatar);
-  })
+  }, [currentUser.name, currentUser.about, currentUser.avatar])
 
   return (
     <main className="content">
@@ -32,7 +47,7 @@ export default function Main(props) {
       </section>
       <section className="list-of-places">
         <ul className="elements">
-          {cards.map((item) => (<Card onCardClick={props.onCardClick} card={item} key={item._id} />))}
+          {props.cards.map((item) => (<Card onCardDelete={handleCardDelete} onCardLike={handleCardLike} onCardClick={props.onCardClick} card={item} key={item._id} />))}
         </ul>
       </section>
     </main>);
