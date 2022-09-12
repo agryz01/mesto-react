@@ -1,5 +1,4 @@
 import React from 'react';
-import Avatar from '../images/profile__image.jpg';
 import Card from './Card';
 import { CurrentUserContext } from '../contexts/CurrentUserContext';
 import { api } from '../utils/Api';
@@ -7,10 +6,6 @@ import { api } from '../utils/Api';
 export default function Main(props) {
 
   const currentUser = React.useContext(CurrentUserContext);
-
-  const [userName, setUserName] = React.useState('Жак-Ив Кусто');
-  const [userDescription, setUserDescription] = React.useState('Исследователь океана');
-  const [userAvatar, setUserAvatar] = React.useState(Avatar);
 
   function handleCardLike(card) {
     const isFavourites = card.likes.some(item => item._id === currentUser._id);
@@ -28,19 +23,13 @@ export default function Main(props) {
     props.setCards((state) => state.filter((item) => item._id !== card._id));
   }
 
-  React.useEffect(() => {
-    setUserName(currentUser.name);
-    setUserDescription(currentUser.about);
-    setUserAvatar(currentUser.avatar);
-  }, [currentUser.name, currentUser.about, currentUser.avatar])
-
   return (
     <main className="content">
       <section className="profile">
-        <div onClick={props.onEditAvatar} className="profile__avatar" style={{ backgroundImage: `url(${userAvatar})` }} />
+        <div onClick={props.onEditAvatar} className="profile__avatar" style={{ backgroundImage: `url(${currentUser.avatar})` }} />
         <div className="profile__profile-info">
-          <h1 className="profile__title">{userName}</h1>
-          <p className="profile__subtitle">{userDescription}</p>
+          <h1 className="profile__title">{currentUser.name}</h1>
+          <p className="profile__subtitle">{currentUser.about}</p>
         </div>
         <button onClick={props.onEditProfile} type="button" aria-label="редактирование профиля." className="profile__edit-button" />
         <button onClick={props.onAddPlace} type="button" aria-label="добавление карточки." className="profile__add-button" />
