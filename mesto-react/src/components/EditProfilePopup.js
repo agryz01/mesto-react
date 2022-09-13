@@ -19,7 +19,7 @@ export default function EditProfilePopup(props) {
   React.useEffect(() => {
     setName(currentUser.name);
     setDescription(currentUser.about);
-  }, [currentUser]);
+  }, [currentUser, props.isOpen]);
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -30,13 +30,13 @@ export default function EditProfilePopup(props) {
   }
 
   return (
-    <PopupWithForm onSubmit={handleSubmit} onClose={props.onClose} isOpen={props.isOpen} name='window_edit' title='Редактировать профиль' buttonText='Сохранить'>
+    <PopupWithForm onSubmit={handleSubmit} onClose={props.onClose} isOpen={props.isOpen} name='window_edit' title='Редактировать профиль' buttonText={props.buttonText}>
       <label className="popup__field">
-        <input value={name} onChange={handleChangeName} type="text" name="name" id="name-input" minLength={2} maxLength={40} required placeholder="Как вас зовут?" className="popup__input-text popup__input-text_input_name" />
+        <input value={name || ''} onChange={handleChangeName} type="text" name="name" id="name-input" minLength={2} maxLength={40} required placeholder="Как вас зовут?" className="popup__input-text popup__input-text_input_name" />
         <span className="popup__input-error name-input-error" />
       </label>
       <label className="popup__field">
-        <input value={description} onChange={handleChangeDescription} type="text" name="about" id="activity-input" minLength={2} maxLength={200} required placeholder="Чем вы занимаетесь?" className="popup__input-text popup__input-text_input_activity" />
+        <input value={description || ''} onChange={handleChangeDescription} type="text" name="about" id="activity-input" minLength={2} maxLength={200} required placeholder="Чем вы занимаетесь?" className="popup__input-text popup__input-text_input_activity" />
         <span className="popup__input-error activity-input-error" />
       </label>
     </PopupWithForm>

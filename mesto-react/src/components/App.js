@@ -14,6 +14,7 @@ function App() {
 
   const [currentUser, setCurrentUser] = React.useState({});
   const [cards, setCards] = React.useState([]);
+  const [isLoading, setIsLoading] = React.useState(false);
 
   React.useEffect(() => {
     Promise.all([
@@ -47,9 +48,9 @@ function App() {
     setIsAddPlacePopupOpen(true);
   }
 
-  function handleCardClick(cadr) {
+  function handleCardClick(card) {
     setIsImagePopupOpen(true);
-    setSelectedCard(cadr);
+    setSelectedCard(card);
   }
 
   function closeAllPopups() {
@@ -60,6 +61,7 @@ function App() {
   }
 
   function handleUpdateUser({ name, about }) {
+    setIsLoading(true);
     api.setUserInformation(name, about)
       .then((res) => {
         setCurrentUser(res);
@@ -68,9 +70,13 @@ function App() {
       .catch((err) => {
         console.log(err); // выведем ошибку в консоль
       })
+      .finally(() => {
+        setIsLoading(false);
+      })
   }
 
   function handleUpdateAvatar({ avatar }) {
+    setIsLoading(true);
     api.setAvatar(avatar)
       .then((res) => {
         setCurrentUser(res);
@@ -78,6 +84,9 @@ function App() {
       })
       .catch((err) => {
         console.log(err); // выведем ошибку в консоль
+      })
+      .finally(() => {
+        setIsLoading(false);
       })
   }
 
@@ -93,11 +102,17 @@ function App() {
   }
 
   function handleCardDelete(card) {
-    api.deletCard(card._id);
-    setCards((state) => state.filter((item) => item._id !== card._id));
+    api.deletCard(card._id)
+      .then((res) => {
+        setCards((state) => state.filter((item) => item._id !== card._id));
+      })
+      .catch((err) => {
+        console.log(err); // выведем ошибку в консоль
+      })
   }
 
   function handleAddPlace({ name, link }) {
+    setIsLoading(true);
     api.addCard(name, link)
       .then((res) => {
         setCards([res, ...cards]);
@@ -106,7 +121,26 @@ function App() {
       .catch((err) => {
         console.log(err); // выведем ошибку в консоль 
       })
+      .finally(() => {
+        setIsLoading(false);
+      })
   }
+
+  const isOpen = isEditAvatarPopupOpen || isEditProfilePopupOpen || isAddPlacePopupOpen || isImagePopupOpen;
+
+  React.useEffect(() => {
+    function closeByEscape(evt) {
+      if (evt.key === 'Escape') {
+        closeAllPopups();
+      }
+    }
+    if (isOpen) { // навешиваем только при открытии
+      document.addEventListener('keydown', closeByEscape);
+      return () => {
+        document.removeEventListener('keydown', closeByEscape);
+      }
+    }
+  }, [isOpen])
 
   return (
     <div className="page">
@@ -114,9 +148,9 @@ function App() {
         <Header />
         <Main cards={cards} onCardDelete={handleCardDelete} onCardLike={handleCardLike} onCardClick={handleCardClick} onEditAvatar={handleEditAvatarClick} onEditProfile={handleEditProfileClick} onAddPlace={handleAddPlaceClick} />
         <Footer />
-        <EditProfilePopup onUpdateUser={handleUpdateUser} onClose={closeAllPopups} isOpen={isEditProfilePopupOpen} />
-        <AddPlacePopup onAddPlace={handleAddPlace} onClose={closeAllPopups} isOpen={isAddPlacePopupOpen} />
-        <EditAvatarPopup onUpdateAvatar={handleUpdateAvatar} onClose={closeAllPopups} isOpen={isEditAvatarPopupOpen} />
+        <EditProfilePopup buttonText={isLoading? 'Сохранение...' : 'Сохранить'} onUpdateUser={handleUpdateUser} onClose={closeAllPopups} isOpen={isEditProfilePopupOpen} />
+        <AddPlacePopup buttonText={isLoading? 'Создание...' : 'Создать'} onAddPlace={handleAddPlace} onClose={closeAllPopups} isOpen={isAddPlacePopupOpen} />
+        <EditAvatarPopup buttonText={isLoading? 'Сохранение...' : 'Сохранить'} onUpdateAvatar={handleUpdateAvatar} onClose={closeAllPopups} isOpen={isEditAvatarPopupOpen} />
         <PopupWithForm name='window_confirmation' title='Вы уверены?' buttonText='Да' />
         <ImagePopup isOpen={isImagePopupOpen} card={selectedCard} onClose={closeAllPopups} />
       </CurrentUserContext.Provider>
