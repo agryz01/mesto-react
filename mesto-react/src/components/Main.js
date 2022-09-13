@@ -1,27 +1,10 @@
 import React from 'react';
 import Card from './Card';
 import { CurrentUserContext } from '../contexts/CurrentUserContext';
-import { api } from '../utils/Api';
 
 export default function Main(props) {
 
   const currentUser = React.useContext(CurrentUserContext);
-
-  function handleCardLike(card) {
-    const isFavourites = card.likes.some(item => item._id === currentUser._id);
-
-    api.toggleCardLikes(isFavourites, card._id).then((newCard) => {
-      props.setCards((state) => state.map((item) => item._id === card._id ? newCard : item));
-    })
-      .catch((err) => {
-        console.log(err); // выведем ошибку в консоль
-      })
-  }
-
-  function handleCardDelete(card) {
-    api.deletCard(card._id);
-    props.setCards((state) => state.filter((item) => item._id !== card._id));
-  }
 
   return (
     <main className="content">
@@ -36,7 +19,7 @@ export default function Main(props) {
       </section>
       <section className="list-of-places">
         <ul className="elements">
-          {props.cards.map((item) => (<Card onCardDelete={handleCardDelete} onCardLike={handleCardLike} onCardClick={props.onCardClick} card={item} key={item._id} />))}
+          {props.cards.map((item) => (<Card onCardDelete={props.onCardDelete} onCardLike={props.onCardLike} onCardClick={props.onCardClick} card={item} key={item._id} />))}
         </ul>
       </section>
     </main>);

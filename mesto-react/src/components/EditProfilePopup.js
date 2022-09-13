@@ -16,6 +16,11 @@ export default function EditProfilePopup(props) {
     setDescription(e.target.value);
   }
 
+  React.useEffect(() => {
+    setName(currentUser.name);
+    setDescription(currentUser.about);
+  }, [currentUser]);
+
   function handleSubmit(e) {
     e.preventDefault();
     props.onUpdateUser({
@@ -23,11 +28,6 @@ export default function EditProfilePopup(props) {
       about: description
     });
   }
-
-  // React.useEffect(() => {
-  //   setName(currentUser.name);
-  //   setDescription(currentUser.about);
-  // }, [currentUser]);
 
   return (
     <PopupWithForm onSubmit={handleSubmit} onClose={props.onClose} isOpen={props.isOpen} name='window_edit' title='Редактировать профиль' buttonText='Сохранить'>
